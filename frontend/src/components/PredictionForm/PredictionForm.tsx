@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
-import { PredictionInput } from '../../types';
+import { PredictionInput, CityOptions } from '../../types';
+import { getOptions } from '../../api/rentApi';
 
 const Form = styled.div`
   background: ${theme.colors.surface};
@@ -31,6 +32,10 @@ const Grid = styled.div`
   @media (max-width: 600px) { grid-template-columns: 1fr; }
 `;
 
+const FullRow = styled.div`
+  grid-column: 1 / -1;
+`;
+
 const Field = styled.div`
   display: flex;
   flex-direction: column;
@@ -53,7 +58,7 @@ const inputStyles = `
   font-family: ${theme.fonts.body};
   color: ${theme.colors.text};
   background: ${theme.colors.background};
-  transition: border-color ${theme.transitions.fast}, box-shadow ${theme.transitions.fast};
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   width: 100%;
   &:focus {
     outline: none;
@@ -64,6 +69,26 @@ const inputStyles = `
 
 const Select = styled.select`${inputStyles}`;
 const Input  = styled.input`${inputStyles}`;
+
+const CitySelect = styled(Select)`
+  border-color: ${theme.colors.primary};
+  background: ${theme.colors.primaryLight};
+  font-weight: 600;
+  color: ${theme.colors.primary};
+`;
+
+const MockBadge = styled.div`
+  background: ${theme.colors.accentLight};
+  border: 1px solid #F5D9A0;
+  border-radius: ${theme.radii.md};
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  color: #B07010;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+`;
 
 const Divider = styled.div`
   height: 1px;
@@ -79,7 +104,7 @@ const SubmitButton = styled.button<{ $loading: boolean }>`
   font-size: 0.95rem;
   font-weight: 600;
   border-radius: ${theme.radii.md};
-  transition: background ${theme.transitions.fast}, transform ${theme.transitions.fast};
+  transition: background 0.15s ease, transform 0.15s ease;
   letter-spacing: 0.02em;
   &:hover:not(:disabled) {
     background: ${theme.colors.primaryHover};
@@ -88,10 +113,7 @@ const SubmitButton = styled.button<{ $loading: boolean }>`
   &:disabled { cursor: not-allowed; }
 `;
 
-const LOCATIONS = ['Dublin 1','Dublin 2','Dublin 3','Dublin 4','Dublin 5','Dublin 6',
-  'Dublin 8','Dublin 9','Dublin 12','Dublin 13','Dublin 14','Dublin 18','Other Dublin'];
-const TYPES     = ['Apartment', 'Studio'];
-const BERS      = ['A1','A1A2','A2','A2A3','A3','B1'];
+const CITIES = ["Dublin", "Cork", "Galway", "Limerick", "Waterford"];
 
 interface Props {
   onSubmit: (input: PredictionInput) => void;
@@ -99,55 +121,95 @@ interface Props {
 }
 
 const PredictionForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
-  const [form, setForm] = useState<PredictionInput>({
-    beds: 1, baths: 1, type: 'Apartment', ber: 'A2', location: 'Dublin 4',
+  const [city, setCity]       = useState('Dublin');
+  const [options, setOptions] = useState<CityOptions | null>(null);
+  const [form, setForm]       = useState<PredictionInput>({
+    city: 'Dublin', beds: 1, baths: 1,
+    type: 'Apartment', ber: 'A2', location: '',
   });
+
+  useEffect(() => {
+    getOptions(city).then(opts => {
+      setOptions(opts);
+      setForm(f => ({
+        ...f,
+        city,
+        location: opts.locations[0] || '',
+        type: opts.types.includes(f.type) ? f.type : opts.types[0],
+        ber:  opts.bers.includes(f.ber)   ? f.ber  : opts.bers[0],
+      }));
+    }).catch(console.error);
+  }, [city]);
 
   const set = (key: keyof PredictionInput) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => setForm(f => ({ ...f, [key]: key === 'beds' || key === 'baths' ? Number(e.target.value) : e.target.value }));
+  ) => setForm(f => ({
+    ...f,
+    [key]: key === 'beds' || key === 'baths' ? Number(e.target.value) : e.target.value
+  }));
 
   return (
     <Form>
       <FormTitle>Property Details</FormTitle>
       <FormSubtitle>Fill in the details below to get an estimated monthly rent.</FormSubtitle>
 
+      {city !== 'Dublin' && (
+        <MockBadge>
+          ⚠️ Mock data for {city} — real scraped data coming soon
+        </MockBadge>
+      )}
+
       <Grid>
+        <FullRow>
+          <Field>
+            <Label>🏙️ City</Label>
+            <CitySelect value={city} onChange={e => setCity(e.target.value)}>
+              {CITIES.map(c => <option key={c}>{c}</option>)}
+            </CitySelect>
+          </Field>
+        </FullRow>
+
         <Field>
-          <Label>Location</Label>
+          <Label>📍 Location</Label>
           <Select value={form.location} onChange={set('location')}>
-            {LOCATIONS.map(l => <option key={l}>{l}</option>)}
+            {options?.locations.map(l => <option key={l}>{l}</option>)}
           </Select>
         </Field>
 
         <Field>
-          <Label>Property Type</Label>
+          <Label>🏢 Property Type</Label>
           <Select value={form.type} onChange={set('type')}>
-            {TYPES.map(t => <option key={t}>{t}</option>)}
+            {options?.types.map(t => <option key={t}>{t}</option>)}
           </Select>
         </Field>
 
         <Field>
-          <Label>Bedrooms</Label>
+          <Label>🛏️ Bedrooms</Label>
           <Input type="number" min={0} max={10} value={form.beds} onChange={set('beds')} />
         </Field>
 
         <Field>
-          <Label>Bathrooms</Label>
+          <Label>🚿 Bathrooms</Label>
           <Input type="number" min={1} max={10} value={form.baths} onChange={set('baths')} />
         </Field>
 
-        <Field style={{ gridColumn: '1 / -1' }}>
-          <Label>BER Rating</Label>
-          <Select value={form.ber} onChange={set('ber')}>
-            {BERS.map(b => <option key={b}>{b}</option>)}
-          </Select>
-        </Field>
+        <FullRow>
+          <Field>
+            <Label>⚡ BER Rating</Label>
+            <Select value={form.ber} onChange={set('ber')}>
+              {options?.bers.map(b => <option key={b}>{b}</option>)}
+            </Select>
+          </Field>
+        </FullRow>
       </Grid>
 
       <Divider />
 
-      <SubmitButton $loading={isLoading} disabled={isLoading} onClick={() => onSubmit(form)}>
+      <SubmitButton
+        $loading={isLoading}
+        disabled={isLoading || !options}
+        onClick={() => onSubmit(form)}
+      >
         {isLoading ? 'Predicting...' : '🔮 Predict Monthly Rent'}
       </SubmitButton>
     </Form>

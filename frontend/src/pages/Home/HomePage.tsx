@@ -34,14 +34,14 @@ const Title = styled.h1`
   color: ${theme.colors.text};
   letter-spacing: -0.03em;
   margin-bottom: 1rem;
-  max-width: 640px;
+  max-width: 680px;
   line-height: 1.15;
 `;
 
 const Subtitle = styled.p`
   font-size: 1.05rem;
   color: ${theme.colors.textSecondary};
-  max-width: 500px;
+  max-width: 520px;
   margin-bottom: 2.5rem;
   line-height: 1.7;
 `;
@@ -61,6 +61,25 @@ const CTAButton = styled.button`
     transform: translateY(-2px);
     box-shadow: ${theme.shadows.lg};
   }
+`;
+
+const CitiesRow = styled.div`
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+  justify-content: center;
+`;
+
+const CityPill = styled.div`
+  background: ${theme.colors.surface};
+  border: 1px solid ${theme.colors.border};
+  border-radius: ${theme.radii.full};
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: ${theme.colors.textSecondary};
+  box-shadow: ${theme.shadows.sm};
 `;
 
 const StatsRow = styled.div`
@@ -91,21 +110,32 @@ const StatLabel = styled.div`
   margin-top: 2px;
 `;
 
+const CITIES = ["🏙️ Dublin", "🏙️ Cork", "🏙️ Galway", "🏙️ Limerick", "🏙️ Waterford"];
+
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   return (
     <Page>
       <Tag>🤖 ML-Powered · Gradient Boosting</Tag>
-      <Title>Predict Dublin Rental Prices with Machine Learning</Title>
+      <Title>Predict Rental Prices Across Ireland</Title>
       <Subtitle>
-        Enter your property details and get an instant rent estimate powered by a
-        Gradient Boosting model trained on real Dublin listings.
+        Enter your property details and get an instant rent estimate powered by
+        machine learning — covering Dublin, Cork, Galway, Limerick and Waterford.
       </Subtitle>
+
+      <CitiesRow>
+        {CITIES.map(c => <CityPill key={c}>{c}</CityPill>)}
+      </CitiesRow>
+
       <CTAButton onClick={() => navigate('/predict')}>
         Get Rent Prediction →
       </CTAButton>
 
       <StatsRow>
+        <Stat>
+          <StatValue>5</StatValue>
+          <StatLabel>Cities Covered</StatLabel>
+        </Stat>
         <Stat>
           <StatValue>106</StatValue>
           <StatLabel>Training Listings</StatLabel>

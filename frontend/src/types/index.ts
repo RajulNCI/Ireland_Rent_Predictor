@@ -1,4 +1,5 @@
 export interface PredictionInput {
+  city: string;
   beds: number;
   baths: number;
   type: string;
@@ -13,6 +14,14 @@ export interface PredictionResult {
   rmse: number;
   model: string;
   area_average: number;
+  city: string;
+}
+
+export interface CityOptions {
+  locations: string[];
+  types: string[];
+  bers: string[];
+  cities: string[];
 }
 
 export interface ChartDataPoint {
