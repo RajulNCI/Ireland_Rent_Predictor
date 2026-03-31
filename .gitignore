@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.pkl
+venv/
+.env
+
+# Node
+node_modules/
+build/
+
+# Mac
+.DS_Store
+
+# CSV data
+*.csv
