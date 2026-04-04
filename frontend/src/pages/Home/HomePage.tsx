@@ -110,7 +110,10 @@ const StatLabel = styled.div`
   margin-top: 2px;
 `;
 
-const CITIES = ["🏙️ Dublin", "🏙️ Cork", "🏙️ Galway", "🏙️ Limerick", "🏙️ Waterford"];
+const CITIES = [
+  "🏙️ Dublin", "🏙️ Cork", "🏙️ Galway", "🏙️ Kildare", "🏙️ Meath",
+  "🏙️ Louth", "🏙️ Limerick", "🏙️ Waterford", "🏙️ Wexford", "🏙️ Kerry"
+];
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -133,8 +136,8 @@ const HomePage: React.FC = () => {
 
       <StatsRow>
         <Stat>
-          <StatValue>5</StatValue>
-          <StatLabel>Cities Covered</StatLabel>
+          <StatValue>10</StatValue>
+          <StatLabel>Counties Covered</StatLabel>
         </Stat>
         <Stat>
           <StatValue>106</StatValue>

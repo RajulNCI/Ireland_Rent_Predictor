@@ -7,6 +7,7 @@ import { PredictionProvider } from './context/PredictionContext';
 import Navbar from './components/Navbar/Navbar';
 import HomePage from './pages/Home/HomePage';
 import PredictionPage from './pages/Prediction/PredictionPage';
+import AnalyticsPage from './pages/Analytics/AnalyticsPages';
 
 const App: React.FC = () => (
   <ThemeProvider theme={theme}>
@@ -17,6 +18,7 @@ const App: React.FC = () => (
         <Routes>
           <Route path="/"        element={<HomePage />} />
           <Route path="/predict" element={<PredictionPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
         </Routes>
       </BrowserRouter>
     </PredictionProvider>

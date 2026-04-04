@@ -22,7 +22,6 @@ const FormSubtitle = styled.p`
   font-size: 0.875rem;
   color: ${theme.colors.textMuted};
   margin-bottom: 1.75rem;
-  font-family: ${theme.fonts.body};
 `;
 
 const Grid = styled.div`
@@ -77,17 +76,27 @@ const CitySelect = styled(Select)`
   color: ${theme.colors.primary};
 `;
 
-const MockBadge = styled.div`
-  background: ${theme.colors.accentLight};
-  border: 1px solid #F5D9A0;
-  border-radius: ${theme.radii.md};
-  padding: 0.5rem 0.75rem;
-  font-size: 0.78rem;
-  color: #B07010;
-  margin-bottom: 1rem;
-  display: flex;
+const TierBadge = styled.div<{ $tier: string }>`
+  display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  padding: 6px 12px;
+  border-radius: ${theme.radii.full};
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  background: ${({ $tier }) =>
+    $tier === 'good'     ? theme.colors.successLight :
+    $tier === 'moderate' ? theme.colors.accentLight :
+    theme.colors.dangerLight};
+  color: ${({ $tier }) =>
+    $tier === 'good'     ? theme.colors.success :
+    $tier === 'moderate' ? '#B07010' :
+    theme.colors.danger};
+  border: 1px solid ${({ $tier }) =>
+    $tier === 'good'     ? '#B8DFC9' :
+    $tier === 'moderate' ? '#F5D9A0' :
+    '#F5C0BB'};
 `;
 
 const Divider = styled.div`
@@ -113,7 +122,16 @@ const SubmitButton = styled.button<{ $loading: boolean }>`
   &:disabled { cursor: not-allowed; }
 `;
 
-const CITIES = ["Dublin", "Cork", "Galway", "Limerick", "Waterford"];
+const CITIES = [
+  "Dublin", "Cork", "Galway", "Kildare", "Meath",
+  "Louth", "Limerick", "Waterford", "Wexford", "Kerry"
+];
+
+const TIER_LABELS = {
+  good:     '🟢 High confidence',
+  moderate: '🟡 Moderate confidence',
+  low:      '🔴 Low confidence — limited data',
+};
 
 interface Props {
   onSubmit: (input: PredictionInput) => void;
@@ -153,16 +171,16 @@ const PredictionForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
       <FormTitle>Property Details</FormTitle>
       <FormSubtitle>Fill in the details below to get an estimated monthly rent.</FormSubtitle>
 
-      {city !== 'Dublin' && (
-        <MockBadge>
-          ⚠️ Mock data for {city} — real scraped data coming soon
-        </MockBadge>
+      {options && (
+        <TierBadge $tier={options.tier}>
+          {TIER_LABELS[options.tier]} · R² {options.r2} · {options.rows} training samples
+        </TierBadge>
       )}
 
       <Grid>
         <FullRow>
           <Field>
-            <Label>🏙️ City</Label>
+            <Label>🏙️ County</Label>
             <CitySelect value={city} onChange={e => setCity(e.target.value)}>
               {CITIES.map(c => <option key={c}>{c}</option>)}
             </CitySelect>

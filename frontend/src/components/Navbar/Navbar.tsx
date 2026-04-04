@@ -47,7 +47,19 @@ const LogoSub = styled.span`
   font-weight: 400;
   margin-left: 0.25rem;
 `;
-
+const NavLink = styled.a`
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: ${theme.colors.textSecondary};
+  text-decoration: none;
+  padding: 0.4rem 0.75rem;
+  border-radius: ${theme.radii.md};
+  transition: all 0.15s ease;
+  &:hover {
+    background: ${theme.colors.primaryLight};
+    color: ${theme.colors.primary};
+  }
+`;
 const Badge = styled.div`
   background: ${theme.colors.primaryLight};
   color: ${theme.colors.primary};
@@ -67,6 +79,10 @@ const Navbar: React.FC = () => (
         <LogoText>DublinRent<LogoSub>Predictor</LogoSub></LogoText>
       </div>
     </Logo>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <NavLink href="/predict">Predictor</NavLink>
+      <NavLink href="/analytics">Analytics</NavLink>
+    </div>
     <Badge>MSc Cloud ML · NCI Dublin</Badge>
   </Nav>
 );

@@ -40,6 +40,26 @@ const ModelBadge = styled.span`
   letter-spacing: 0.04em;
 `;
 
+const TierBanner = styled.div<{ $tier: string }>`
+  padding: 0.6rem 1rem;
+  border-radius: ${theme.radii.md};
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+  background: ${({ $tier }) =>
+    $tier === 'good'     ? theme.colors.successLight :
+    $tier === 'moderate' ? theme.colors.accentLight :
+    theme.colors.dangerLight};
+  color: ${({ $tier }) =>
+    $tier === 'good'     ? theme.colors.success :
+    $tier === 'moderate' ? '#B07010' :
+    theme.colors.danger};
+  border: 1px solid ${({ $tier }) =>
+    $tier === 'good'     ? '#B8DFC9' :
+    $tier === 'moderate' ? '#F5D9A0' :
+    '#F5C0BB'};
+`;
+
 const PriceDisplay = styled.div`
   text-align: center;
   background: linear-gradient(135deg, ${theme.colors.primaryLight} 0%, #EDF4FF 100%);
@@ -121,7 +141,7 @@ const Divider = styled.div`
 
 const MetricsRow = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.75rem;
 `;
 
@@ -131,18 +151,24 @@ const Metric = styled.div`
 
 const MetricValue = styled.div`
   font-family: ${theme.fonts.mono};
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   color: ${theme.colors.text};
 `;
 
 const MetricLabel = styled.div`
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: ${theme.colors.textMuted};
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-top: 2px;
 `;
+
+const TIER_LABELS = {
+  good:     '🟢 High confidence prediction',
+  moderate: '🟡 Moderate confidence — more data would improve accuracy',
+  low:      '🔴 Low confidence — insufficient training data for this county',
+};
 
 interface Props {
   result: PredictionResult;
@@ -155,8 +181,12 @@ const ResultCard: React.FC<Props> = ({ result }) => (
       <ModelBadge>{result.model}</ModelBadge>
     </CardHeader>
 
+    <TierBanner $tier={result.tier}>
+      {TIER_LABELS[result.tier]}
+    </TierBanner>
+
     <PriceDisplay>
-      <PriceLabel>Estimated Monthly Rent</PriceLabel>
+      <PriceLabel>Estimated Monthly Rent — {result.city}</PriceLabel>
       <Price>€{result.prediction.toLocaleString()} <PriceMonth>/ mo</PriceMonth></Price>
     </PriceDisplay>
 
@@ -181,6 +211,10 @@ const ResultCard: React.FC<Props> = ({ result }) => (
         <MetricLabel>RMSE</MetricLabel>
       </Metric>
       <Metric>
+        <MetricValue>{result.r2.toFixed(2)}</MetricValue>
+        <MetricLabel>R²</MetricLabel>
+      </Metric>
+      <Metric>
         <MetricValue>{((1 - result.rmse / result.prediction) * 100).toFixed(0)}%</MetricValue>
         <MetricLabel>Accuracy</MetricLabel>
       </Metric>
@@ -188,6 +222,10 @@ const ResultCard: React.FC<Props> = ({ result }) => (
         <MetricValue>€{result.area_average.toLocaleString()}</MetricValue>
         <MetricLabel>Area Avg</MetricLabel>
       </Metric>
+      <Metric>
+    <MetricValue>{result.latency_ms}ms</MetricValue>
+      <MetricLabel>Latency</MetricLabel>
+    </Metric>
     </MetricsRow>
   </Card>
 );
