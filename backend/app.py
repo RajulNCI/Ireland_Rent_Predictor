@@ -28,7 +28,7 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 AWS_REGION   = os.environ.get("AWS_REGION",   "eu-west-1")
-S3_BUCKET    = os.environ.get("S3_BUCKET",    "ireland-rent-predictor")
+S3_BUCKET    = os.environ.get("S3_BUCKET",    "ireland-rent-predictor-models-4a766eff")
 DYNAMO_TABLE = os.environ.get("DYNAMO_TABLE", "rent-predictions")
 
 # ──────────────────────────────────────────────
@@ -71,13 +71,17 @@ pipelines = {}
 metrics   = {}
 city_data = {}
 
+def load_from_s3(key):
+    obj = s3.get_object(Bucket=S3_BUCKET, Key=key)
+    return io.BytesIO(obj["Body"].read())
+
 for city in SUPPORTED_CITIES:
     city_lower = city.lower()
     try:
-        pipelines[city] = joblib.load(f"{city_lower}_pipeline.pkl")
-        metrics[city]   = joblib.load(f"{city_lower}_metrics.pkl")
-        city_data[city] = pd.read_csv(f"cleaned_{city_lower}.csv")
-        log.info(f"✅ Loaded {city} model — R²: {metrics[city]['r2']}")
+        pipelines[city] = joblib.load(load_from_s3(f"{city_lower}_pipeline.pkl"))
+        metrics[city]   = joblib.load(load_from_s3(f"{city_lower}_metrics.pkl"))
+        city_data[city] = pd.read_csv(load_from_s3(f"cleaned_{city_lower}.csv"))
+        log.info(f"✅ Loaded {city} model from S3 — R²: {metrics[city]['r2']}")
     except Exception as e:
         log.warning(f"⚠️ Could not load {city} model: {e}")
 
