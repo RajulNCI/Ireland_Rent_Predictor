@@ -1,5 +1,4 @@
 name: CD — Backend → Elastic Beanstalk
-
 on:
   push:
     branches: [main]
@@ -7,10 +6,10 @@ on:
       - 'backend/**'
 
 env:
-  AWS_REGION:    eu-west-1
-  S3_BUCKET:     ireland-rent-predictor
-  EB_APP_NAME:   ireland-rent-backend
-  EB_ENV_NAME:   ireland-rent-backend-env
+  AWS_REGION:  us-east-1
+  S3_BUCKET:   ireland-rent-predictor-models-4a766eff
+  EB_APP_NAME: ireland-rent-predictor
+  EB_ENV_NAME: ireland-rent-predictor-env
 
 jobs:
   test-backend:
@@ -40,7 +39,6 @@ jobs:
     name: Deploy → Elastic Beanstalk
     runs-on: ubuntu-latest
     needs: test-backend
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -50,6 +48,7 @@ jobs:
         with:
           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token:     ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region:            ${{ env.AWS_REGION }}
 
       - name: Zip backend
@@ -90,4 +89,4 @@ jobs:
             --environment-names ${{ env.EB_ENV_NAME }}
 
       - name: Done
-        run: echo "Backend deployed to Elastic Beanstalk"
+        run: echo "✅ Backend deployed to Elastic Beanstalk"
