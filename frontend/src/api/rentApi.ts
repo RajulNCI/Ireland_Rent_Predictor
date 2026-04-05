@@ -1,4 +1,4 @@
-import { PredictionInput, PredictionResult } from '../types';
+import { PredictionInput, PredictionResult, CityOptions } from '../types';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -7,6 +7,7 @@ export const predictRent = async (input: PredictionInput): Promise<PredictionRes
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
+      City:          input.city,
       Beds_Numeric:  input.beds,
       Baths_Numeric: input.baths,
       Type:          input.type,
@@ -23,8 +24,14 @@ export const predictRent = async (input: PredictionInput): Promise<PredictionRes
   return response.json();
 };
 
-export const getOptions = async () => {
-  const response = await fetch(`${API_BASE}/options`);
+export const getOptions = async (city: string = 'Dublin'): Promise<CityOptions> => {
+  const response = await fetch(`${API_BASE}/options?city=${encodeURIComponent(city)}`);
   if (!response.ok) throw new Error('Failed to load options');
+  return response.json();
+};
+
+export const getCityComparison = async (): Promise<Record<string, number>> => {
+  const response = await fetch(`${API_BASE}/cities/compare`);
+  if (!response.ok) throw new Error('Failed to load city comparison');
   return response.json();
 };
