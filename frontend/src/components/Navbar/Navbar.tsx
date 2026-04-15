@@ -76,7 +76,7 @@ const Navbar: React.FC = () => (
     <Logo>
       <LogoIcon>🏠</LogoIcon>
       <div>
-        <LogoText>DublinRent<LogoSub>Predictor</LogoSub></LogoText>
+        <LogoText>IrelandRent<LogoSub>Predictor</LogoSub></LogoText>
       </div>
     </Logo>
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

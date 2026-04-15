@@ -73,7 +73,7 @@ const PredictionPage: React.FC = () => {
     <Page>
       <PageHeader>
         <PageTitle>Rent Predictor</PageTitle>
-        <PageSubtitle>Powered by Gradient Boosting · Trained on Dublin rental listings</PageSubtitle>
+        <PageSubtitle>Trained on Irish Counties rental listings</PageSubtitle>
       </PageHeader>
 
       <Grid>
